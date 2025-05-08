@@ -29,18 +29,31 @@ if ($data) {
     }
     
     // Codificar a assinatura em base64
-    $assinaturaBase64 = base64_encode($assinatura);
 
     // Retornar os dados assinados (você pode gerar um arquivo ou apenas retornar os dados para o cliente)
-    echo json_encode([
-        'mensagem' => 'Licença gerada com sucesso!',
-        'dados' => $data,
-        'assinatura' => $assinaturaBase64
-    ]);
+    $jsonFinal = [
+        "dados" => $dados,
+        "assinatura" => base64_encode($assinatura)
+    ];
+    
+    
+
+$jsonFinal = json_encode($jsonFinal, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+
+if (!$jsonFinal) {
+    echo "Erro ao gerar JSON: " . json_last_error_msg();
+    exit;
+}
+
+$code = base64_encode($jsonFinal);
+echo json_encode([
+        
+    'success' => $code
+]);
 } else {
     echo json_encode([
-        'mensagem' => 'Erro ao receber os dados.',
-        'erro' => 'Dados ausentes ou formato inválido'
+        
+        'error' => 'Dados ausentes ou formato inválido'
     ]);
 }
 
