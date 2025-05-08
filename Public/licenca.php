@@ -5,8 +5,9 @@ $data = json_decode(file_get_contents("php://input"), true);
 
 if ($data) {
     // Carregar chave privada
-    $CAMINHO_CHAVE_PRIVADA = "../Keys/private.pem";  // Substitua pelo caminho correto da sua chave privada
+    $CAMINHO_CHAVE_PRIVADA = __DIR__ . '/../Keys/private.pem';
     $privateKey = file_get_contents($CAMINHO_CHAVE_PRIVADA);
+    
     
     // Verifica se a chave privada foi carregada corretamente
     $privateKeyResource = openssl_pkey_get_private($privateKey);
