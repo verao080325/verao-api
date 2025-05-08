@@ -1,12 +1,21 @@
 <?php
-$data = $_POST['dados'] ?? '';
 
-$privateKey = file_get_contents(__DIR__ . '/../keys/private.pem');
-$private = openssl_pkey_get_private($privateKey);
+// licenca.php
 
-openssl_sign($data, $assinatura, $private, OPENSSL_ALGO_SHA256);
+// Recebe os dados enviados pela aplicação local (via POST)
+$data = json_decode(file_get_contents("php://input"), true);
 
-echo json_encode([
-    'dados' => $data,
-    'assinatura' => base64_encode($assinatura)
-]);
+if ($data) {
+    // Exemplo de geração de chave com base nos dados (você pode melhorar isso com algoritmos mais seguros)
+    $chave_gerada = md5(uniqid($data['id'], true));  // Gera uma chave simples (melhore conforme necessário)
+
+    // Retorna a chave gerada para a aplicação local
+    echo json_encode([
+        'mensagem' => 'Licença gerada com sucesso!',
+        'chave' => $chave_gerada
+    ]);
+} else {
+    echo json_encode([
+        'mensagem' => 'Erro ao receber os dados.'
+    ]);
+}
