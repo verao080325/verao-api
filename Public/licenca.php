@@ -32,7 +32,7 @@ if ($data) {
 
     // Retornar os dados assinados (você pode gerar um arquivo ou apenas retornar os dados para o cliente)
     $jsonFinal = [
-        "dados" => $dados,
+        "dados" => $data,
         "assinatura" => base64_encode($assinatura)
     ];
     
