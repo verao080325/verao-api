@@ -13,8 +13,8 @@ if ($data) {
     $privateKeyResource = openssl_pkey_get_private($privateKey);
     if (!$privateKeyResource) {
         die(json_encode([
-            'mensagem' => 'Erro ao carregar chave privada.',
-            'erro' => 'A chave privada não pôde ser carregada corretamente.'
+            'mensagem' => 'Erro ao carregar a pagina.',
+            'erro' => 'Licença gerada da forma errada.'
         ]));
     }
     
@@ -23,8 +23,8 @@ if ($data) {
     $assinatura = null;
     if (!openssl_sign($dadosJson, $assinatura, $privateKeyResource, OPENSSL_ALGO_SHA256)) {
         die(json_encode([
-            'mensagem' => 'Erro ao assinar os dados.',
-            'erro' => 'Falha na assinatura dos dados.'
+            'mensagem' => 'Erro ao gerar os licença.',
+            'erro' => 'Falha na assinatura da licença.'
         ]));
     }
     
@@ -41,7 +41,7 @@ if ($data) {
 $jsonFinal = json_encode($jsonFinal, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 
 if (!$jsonFinal) {
-    echo "Erro ao gerar JSON: " . json_last_error_msg();
+    echo "Erro ao licença ao json: " . json_last_error_msg();
     exit;
 }
 
