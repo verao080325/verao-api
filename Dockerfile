@@ -1,16 +1,15 @@
-FROM php:8.2-apache
+FROM php:8.1-apache
 
-# Instalar extensão openssl
-RUN docker-php-ext-install openssl
+# Copia todos os arquivos para o container
+COPY . /var/www/html/
 
-# Copiar arquivos públicos para o Apache root
-COPY Public/ /var/www/html/
+# Ativa o módulo de reescrita do Apache (caso precise futuramente)
+RUN a2enmod rewrite
 
-# Copiar lógica e chaves (não acessível pela web)
-COPY App/ /var/www/app/
-COPY Keys/ /var/www/keys/
-COPY Logs/ /var/www/logs/
+# Define o DocumentRoot como a pasta Public
+RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/Public|' /etc/apache2/sites-available/000-default.conf
 
-# Permissões e segurança
-RUN chown -R www-data:www-data /var/www \
-    && chmod -R 755 /var/www
+# Ajusta as permissões
+RUN chown -R www-data:www-data /var/www/html
+
+EXPOSE 80
