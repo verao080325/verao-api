@@ -152,3 +152,35 @@ function loadParceiros() {
 
     return $dados; // Retorna o array direto, o echo final é quem transforma em JSON
 }
+
+function verificarCodigoSenha($codigo, $senha) {
+    $arquivo = __DIR__ . '/parceiros.json';
+
+    if (!file_exists($arquivo)) {
+        return 'nao_encontrado';
+    }
+
+    $conteudo = file_get_contents($arquivo);
+    $dadosExistente = json_decode($conteudo, true);
+
+    if (!is_array($dadosExistente)) {
+        return 'nao_encontrado';
+    }
+
+    foreach ($dadosExistente as $parceiro) {
+        if ($parceiro['codigo'] === $codigo) {
+            if (!isset($parceiro['senha'])) {
+                return 'sem_senha';
+            }
+
+            if (password_verify($senha, $parceiro['senha'])) {
+                return 'ok';
+            } else {
+                return 'senha_invalida';
+            }
+        }
+    }
+
+    return 'nao_encontrado';
+}
+
