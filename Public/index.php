@@ -1,34 +1,66 @@
 <?php
 
-require_once __DIR__ . '/../App/LicencaManager.php';
 
-// Cabeçalhos para permitir acesso à API
-header("Access-Control-Allow-Origin: *");
-header("Content-Type: application/json");
 
-// Verifica a rota acessada
-$rota = $_GET['rota'] ?? '';
 
-// Rota: verificar_licenca
-if ($rota === 'verificar_licenca') {
-    $json = file_get_contents('php://input');
-    $dados = json_decode($json, true);
 
-    if (!isset($dados['licenca'])) {
-        http_response_code(400);
-        echo json_encode(['erro' => 'Licença não enviada']);
-        exit;
-    }
 
-    try {
-        $resultado = LicencaManager::gerarLicenca($dados['licenca']);
-        echo json_encode($resultado);
-    } catch (Exception $e) {
-        http_response_code(500);
-        echo json_encode(['erro' => 'Falha ao verificar licença', 'detalhe' => $e->getMessage()]);
-    }
+function chamarApiLicenca($acao, $dados=null) {
+$url = 'http://localhost/Verao-Api/Public/licenca.php'; // Usa URL HTTP e não __DIR__
 
-} else {
-    // Rota padrão
-    echo json_encode(['mensagem' => 'API Verão online!', 'versao' => '1.0']);
+    $payload = json_encode(array_merge(['acao' => $acao], $dados));
+
+    $ch = curl_init($url);
+
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json',
+        'Content-Length: ' . strlen($payload)
+    ]);
+
+    $resposta = curl_exec($ch);
+
+if (curl_errno($ch)) {
+    echo 'Erro cURL: ' . curl_error($ch);
 }
+
+  
+    return json_decode($resposta, true);
+
+
+
+}
+
+$dados = [
+    'codigo' => 'P001',
+    'senhaAtual' => 'senha_antiga123',
+    'novaSenha' => 'nova_senha456'
+];
+
+$resposta = chamarApiLicenca('gerar_licenca', $dados);
+$load = chamarApiLicenca('carregar_dados_parceiros', $dados);
+$alterar_senha = chamarApiLicenca('alterar_senha', $dados);
+
+    var_dump($alterar_senha['sucesso']['erro']);
+/*
+if (isset($resposta['success'])) {
+    $licenca = base64_decode($resposta['success']);
+    var_dump($licenca); // Isso agora deve funcionar corretamente
+} else {
+    echo "Erro: resposta inesperada\n";
+    var_dump($resposta);
+}
+
+
+/*
+if (isset($resposta['success'])) {
+    echo "Licença: " . $resposta['success'];
+} elseif (isset($resposta['erro'])) {
+    echo "Erro: " . $resposta['erro'];
+} else {
+    echo "Erro desconhecido.";
+}
+
+*/

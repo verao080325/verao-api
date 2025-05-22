@@ -1,59 +1,36 @@
 <?php
 
-// Recebe os dados enviados pela aplicação local (via POST)
 $data = json_decode(file_get_contents("php://input"), true);
+header('Content-Type: application/json');
 
-if ($data) {
-    // Carregar chave privada
-    $CAMINHO_CHAVE_PRIVADA = __DIR__ . '/../Keys/private.pem';
-    $privateKey = file_get_contents($CAMINHO_CHAVE_PRIVADA);
-    
-    
-    // Verifica se a chave privada foi carregada corretamente
-    $privateKeyResource = openssl_pkey_get_private($privateKey);
-    if (!$privateKeyResource) {
-        die(json_encode([
-            'mensagem' => 'Erro ao carregar a pagina.',
-            'erro' => 'Licença gerada da forma errada.'
-        ]));
-    }
-    
-    // Gerar assinatura dos dados com a chave privada
-    $dadosJson = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-    $assinatura = null;
-    if (!openssl_sign($dadosJson, $assinatura, $privateKeyResource, OPENSSL_ALGO_SHA256)) {
-        die(json_encode([
-            'mensagem' => 'Erro ao gerar os licença.',
-            'erro' => 'Falha na assinatura da licença.'
-        ]));
-    }
-    
-    // Codificar a assinatura em base64
 
-    // Retornar os dados assinados (você pode gerar um arquivo ou apenas retornar os dados para o cliente)
-    $jsonFinal = [
-        "dados" => $data,
-        "assinatura" => base64_encode($assinatura)
-    ];
-    
-    
 
-$jsonFinal = json_encode($jsonFinal, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-
-if (!$jsonFinal) {
-    echo "Erro ao licença ao json: " . json_last_error_msg();
+if (!$data || !isset($data['acao'])) {
+    echo json_encode(['erro' => 'Dados inválidos']);
     exit;
 }
 
-$code = base64_encode($jsonFinal);
-echo json_encode([
-        
-    'success' => $code
-]);
-} else {
-    echo json_encode([
-        
-        'error' => 'Dados ausentes ou formato inválido'
-    ]);
-}
+require_once 'funcoes_parceiro.php'; // Todas as funções estão aqui
 
+switch($data['acao']) {
+
+    case 'alterar_senha':
+        $ok = alterarSenhaParceiro($data);
+        echo json_encode(['sucesso' => $ok]);
+        exit;
+
+    case 'carregar_dados_parceiros':
+        $dados = loadParceiros();
+        echo json_encode(['dados' => $dados]);
+        exit;
+
+    case 'gerar_licenca':
+
+        return gerar_licenca($data);
+
+        exit;
+
+    default:
+        echo json_encode(['erro' => 'Ação desconhecida']);
+        exit;
+}
