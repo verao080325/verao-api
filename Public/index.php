@@ -1,66 +1,38 @@
 <?php
 
-
-
-
-
-
-function chamarApiLicenca($acao, $dados=null) {
-$url = 'http://localhost/Verao-Api/Public/licenca.php'; // Usa URL HTTP e não __DIR__
+function chamarApiLicenca($acao, $dados = [])
+{
+    //$apiUrl = "https://verao-api.onrender.com/licenca.php";
+    $apiUrl = "http://localhost/Verao-Api/Public/licenca.php";
 
     $payload = json_encode(array_merge(['acao' => $acao], $dados));
 
-    $ch = curl_init($url);
-
+    $ch = curl_init($apiUrl);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Content-Type: application/json',
-        'Content-Length: ' . strlen($payload)
-    ]);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
 
-    $resposta = curl_exec($ch);
+    $response = curl_exec($ch);
+
+var_dump(  $response )   ;
+
 
 if (curl_errno($ch)) {
-    echo 'Erro cURL: ' . curl_error($ch);
+        $error_msg = curl_error($ch);
+        curl_close($ch);
+        return ['error' => 'Curl error: ' . $error_msg];
+    }
+    curl_close($ch);
+
+    if ($response === false) {
+        return ['error' => 'Nenhuma resposta da API'];
+    }
+
+    $decoded = json_decode($response, true);
+    if ($decoded === null) {
+        return ['error' => 'Resposta JSON inválida', 'raw' => $response];
+    }
+
+    return $decoded;
 }
-
-  
-    return json_decode($resposta, true);
-
-
-
-}
-
-$dados = [
-    'codigo' => 'P001',
-    'senhaAtual' => 'senha_antiga123',
-    'novaSenha' => 'nova_senha456'
-];
-
-$resposta = chamarApiLicenca('gerar_licenca', $dados);
-$load = chamarApiLicenca('carregar_dados_parceiros', $dados);
-$alterar_senha = chamarApiLicenca('alterar_senha', $dados);
-
-    var_dump($alterar_senha['sucesso']['erro']);
-/*
-if (isset($resposta['success'])) {
-    $licenca = base64_decode($resposta['success']);
-    var_dump($licenca); // Isso agora deve funcionar corretamente
-} else {
-    echo "Erro: resposta inesperada\n";
-    var_dump($resposta);
-}
-
-
-/*
-if (isset($resposta['success'])) {
-    echo "Licença: " . $resposta['success'];
-} elseif (isset($resposta['erro'])) {
-    echo "Erro: " . $resposta['erro'];
-} else {
-    echo "Erro desconhecido.";
-}
-
-*/
