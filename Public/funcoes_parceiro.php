@@ -30,6 +30,8 @@ if ($data) {
     ];
 
 
+
+    var_dump($jsonFinal);
     $jsonFinalString = json_encode($jsonFinal, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     if (!$jsonFinalString) {
         echo json_encode(["erro" => "Licença com formato incorreto: " . json_last_error_msg()]);
