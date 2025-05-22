@@ -39,6 +39,7 @@ switch($data['acao']) {
 
     
     default:
-        echo json_encode(['erro' => 'Ação desconhecida']);
+              echo json_encode(['erro' => 'Ação desconhecida '.$data['acao']]);
+
         exit;
 }
