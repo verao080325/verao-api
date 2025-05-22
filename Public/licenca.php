@@ -30,6 +30,14 @@ switch($data['acao']) {
 
         exit;
 
+
+     case 'verificarSenhaCodigo':
+
+        return verificarCodigoSenha($data->codigo,$data->senha);
+
+        exit;
+
+    
     default:
         echo json_encode(['erro' => 'Ação desconhecida']);
         exit;
